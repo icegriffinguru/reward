@@ -36,6 +36,17 @@ describe("NODERewardManagement", function () {
     const nodeName1 = 'Account1 - Node1';
     nodeRewardManager.createNode(addr1.address, nodeName1);
 
+    const names = await nodeRewardManager._getNodesNames(addr1.address);
+    // console.log('names', names);
+    // check length of the name of the created node is the same
+    expect(names).to.have.lengthOf(nodeName1.length);
+
+    // solidity's timestamp is in seconds
+    const creationTime = await nodeRewardManager._getNodesCreationTime(addr1.address);
+    console.log(creationTime);
+    const date = new Date(creationTime * 1000);    
+    console.log(date.getDate());
+
     // nodeRewardManager.createNode(addr1.address, nodeName1);
     // expect(() => {
     //   nodeRewardManager.createNode(addr1.address, nodeName1);

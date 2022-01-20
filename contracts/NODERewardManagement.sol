@@ -132,9 +132,11 @@ contract NODERewardManagement {
         );
         totalNodesCreated++;
         nodeOwners.set(account, _nodesOfUser[account].length);
-        if (autoDistri && !distribution) {
-            distributeRewards(gasForDistribution, rewardPerNode);
-        }
+
+        //# Stop auto distritbution of rewards
+        // if (autoDistri && !distribution) {
+        //     distributeRewards(gasForDistribution, rewardPerNode);
+        // }
     }
 
     function isNameAvailable(address account, string memory nodeName)
@@ -196,6 +198,12 @@ contract NODERewardManagement {
         }
     }
 
+    //# calculate reward of a node according to the given formula
+    function calculateRewardOfNode(NodeEntity memory node) private view returns (uint256) {
+        uint256 reward = rewardPerNode.mul(claimTime.add(block.timestamp.sub(node.lastClaimTime))).div(claimTime);
+        return reward;
+    }
+
     function _cashoutNodeReward(address account, uint256 _creationTime)
     external onlySentry
     returns (uint256)
@@ -208,7 +216,11 @@ contract NODERewardManagement {
             "CASHOUT ERROR: You don't have nodes to cash-out"
         );
         NodeEntity storage node = _getNodeWithCreatime(nodes, _creationTime);
-        uint256 rewardNode = node.rewardAvailable;
+
+        //# change reward value
+        uint256 rewardNode = calculateRewardOfNode(node);
+        // uint256 rewardNode = node.rewardAvailable;
+
         node.rewardAvailable = 0;
         return rewardNode;
     }
@@ -224,7 +236,10 @@ contract NODERewardManagement {
         uint256 rewardsTotal = 0;
         for (uint256 i = 0; i < nodesCount; i++) {
             _node = nodes[i];
-            rewardsTotal += _node.rewardAvailable;
+
+            //# change reward value
+            rewardsTotal += calculateRewardOfNode(_node);
+            // rewardsTotal += _node.rewardAvailable;
             _node.rewardAvailable = 0;
         }
         return rewardsTotal;
@@ -247,7 +262,9 @@ contract NODERewardManagement {
         nodesCount = nodes.length;
 
         for (uint256 i = 0; i < nodesCount; i++) {
-            rewardCount += nodes[i].rewardAvailable;
+            //# change reward value
+            rewardCount += calculateRewardOfNode(nodes[i]);
+            // rewardCount += nodes[i].rewardAvailable;
         }
 
         return rewardCount;
@@ -268,7 +285,11 @@ contract NODERewardManagement {
             "CASHOUT ERROR: You don't have nodes to cash-out"
         );
         NodeEntity storage node = _getNodeWithCreatime(nodes, _creationTime);
-        uint256 rewardNode = node.rewardAvailable;
+
+        //# change reward value
+        uint256 rewardNode = calculateRewardOfNode(node);
+        // uint256 rewardNode = node.rewardAvailable;
+
         return rewardNode;
     }
 
@@ -277,9 +298,13 @@ contract NODERewardManagement {
     view
     returns (uint256)
     {
-        return
-        _getNodeWithCreatime(_nodesOfUser[account], creationTime)
-        .rewardAvailable;
+        // return
+        // _getNodeWithCreatime(_nodesOfUser[account], creationTime)
+        // .rewardAvailable;
+
+        //# change reward value
+        uint256 rewardOfNode = calculateRewardOfNode(_getNodeWithCreatime(_nodesOfUser[account], creationTime));
+        return rewardOfNode;
     }
 
     function _getNodesNames(address account)
@@ -319,7 +344,10 @@ contract NODERewardManagement {
                 abi.encodePacked(
                     _creationTimes,
                     separator,
-                    uint2str(_node.creationTime)
+
+                    //# change reward value
+                    calculateRewardOfNode(_node)
+                    // uint2str(_node.creationTime)
                 )
             );
         }
@@ -345,7 +373,10 @@ contract NODERewardManagement {
                 abi.encodePacked(
                     _rewardsAvailable,
                     separator,
-                    uint2str(_node.rewardAvailable)
+
+                    //# change reward value
+                    calculateRewardOfNode(_node)
+                    // uint2str(_node.rewardAvailable)
                 )
             );
         }
