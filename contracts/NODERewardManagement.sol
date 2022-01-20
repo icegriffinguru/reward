@@ -130,8 +130,8 @@ contract NODERewardManagement {
         rewardAvailable: 0
         })
         );
-        nodeOwners.set(account, _nodesOfUser[account].length);
         totalNodesCreated++;
+        nodeOwners.set(account, _nodesOfUser[account].length);
         if (autoDistri && !distribution) {
             distributeRewards(gasForDistribution, rewardPerNode);
         }
