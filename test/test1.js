@@ -101,6 +101,7 @@ describe("NODERewardManagement", function () {
     // function _cashoutAllNodesReward(address account)
     const _nodeReward1 = await nodeRewardManager.callStatic._cashoutAllNodesReward(addr1.address)
     console.log('_nodeReward1', _nodeReward1);
+   
 
     // function claimable(NodeEntity memory node) private view returns (bool) {
     // function _getRewardAmountOf(address account)
@@ -116,5 +117,10 @@ describe("NODERewardManagement", function () {
     // function _changeAutoDistri(bool newMode) external onlySentry {
     // function _changeGasDistri(uint256 newGasDistri) external onlySentry {
     // function _getNodeNumberOf(address account) public view returns (uint256) {
+
+    // const temp = await nodeRewardManager.callStatic.isNameAvailable(addr1.address, 'name')
+    const temp = await nodeRewardManager.callStatic.nodeOwners()
+    console.log('temp', temp);
+
   });
 });
