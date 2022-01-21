@@ -9,6 +9,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./IterableMapping.sol";
 
+import "hardhat/console.sol";
+
 contract NODERewardManagement {
     using SafeMath for uint256;
     using IterableMapping for IterableMapping.Map;
@@ -162,6 +164,12 @@ contract NODERewardManagement {
         NodeEntity[] storage nodes,
         uint256 _creationTime
     ) private view returns (NodeEntity storage) {
+
+        console.logString('--------_getNodeWithCreatime-------');
+        console.logUint(nodes.length);
+        console.logUint(_creationTime);
+        console.logString('--------_getNodeWithCreatime-------');
+
         uint256 numberOfNodes = nodes.length;
         require(
             numberOfNodes > 0,
@@ -200,7 +208,8 @@ contract NODERewardManagement {
 
     //# calculate reward of a node according to the given formula
     function calculateRewardOfNode(NodeEntity memory node) private view returns (uint256) {
-        uint256 reward = rewardPerNode.mul(claimTime.add(block.timestamp.sub(node.lastClaimTime))).div(claimTime);
+        uint256 reward = rewardPerNode.mul(block.timestamp.sub(node.lastClaimTime)).div(claimTime);
+        // uint256 reward = rewardPerNode.mul(block.timestamp.sub(node.lastClaimTime));
         return reward;
     }
 
@@ -220,6 +229,11 @@ contract NODERewardManagement {
         //# change reward value
         uint256 rewardNode = calculateRewardOfNode(node);
         // uint256 rewardNode = node.rewardAvailable;
+
+        console.logString('--------_cashoutNodeReward-------');
+        console.logString(node.name);
+        console.logUint(rewardNode);
+        console.logString('--------_cashoutNodeReward-------');
 
         // node.rewardAvailable = 0;
         return rewardNode;

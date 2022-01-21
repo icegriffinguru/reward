@@ -1,10 +1,16 @@
-const { expect } = require("chai");
+const { expect, assert } = require("chai");
+const { BigNumber } = require("ethers");
 const { ethers } = require("hardhat");
+
+const convertSolIntToBigNumber = (v) => {
+  return v.value;
+};
 
 describe("NODERewardManagement", function () {
   let iterableMapping;
   let nodeRewardManager;
   let owner, addr1, addr2, addr3, addrs;
+  let nodePrice, rewardPerNode, claimTime;
 
   // `beforeEach` will run before each test, re-deploying the contract every
   // time. It receives a callback, which can be async.
@@ -21,10 +27,10 @@ describe("NODERewardManagement", function () {
       },
     });
 
-    const _nodePrice = 50;
-    const _rewardPerNode = 10;
-    const _claimTime = 100;
-    nodeRewardManager = await NODERewardManagement.deploy(_nodePrice, _rewardPerNode, _claimTime);
+    nodePrice = 50;
+    rewardPerNode = 10;
+    claimTime = 2;
+    nodeRewardManager = await NODERewardManagement.deploy(nodePrice, rewardPerNode, claimTime);
     await nodeRewardManager.deployed();
 
     // check address is not zero
@@ -67,16 +73,35 @@ describe("NODERewardManagement", function () {
     const cts1 = creationTime1.split('#')
     const cts2 = creationTime2.split('#')
     const cts3 = creationTime3.split('#')
-    // console.log(cts1, cts2, cts3)
+    console.log('Creation Times: ', cts1, cts2, cts3)
 
-    // _cashoutNodeReward returns uint256 and it becomes an object in javascript
-    // so it should be converted to number
-    const reward11 = parseInt((await nodeRewardManager._cashoutNodeReward(addr1.address, cts1[0])).value);
-    // In the beginning, reward should be equal to 0
-    expect(reward11).to.equal(0);
+    // check properties of nodeRewardManager
+    const _claimTime = await nodeRewardManager.claimTime();
+    const _nodePrice = await nodeRewardManager.nodePrice();
+    const _rewardPerNode = await nodeRewardManager.rewardPerNode();
+    console.log('_claimTime', parseInt(_claimTime))
+    console.log('_nodePrice', parseInt(_nodePrice))
+    console.log('_rewardPerNode', parseInt(_rewardPerNode))
+    assert(_claimTime.eq(ethers.BigNumber.from(claimTime)));
+    assert(_nodePrice.eq(ethers.BigNumber.from(nodePrice)));
+    assert(_rewardPerNode.eq(ethers.BigNumber.from(rewardPerNode)));
+    // expect('claimTime', _claimTime).to.equal(claimTime);
+    // expect('nodePrice', _nodePrice).to.equal(nodePrice);
+    // expect('rewardPerNode', _rewardPerNode).to.equal(rewardPerNode);
 
+    //# formula reward = rewardPerNode * (block.timestamp - node.lastClaimTime) / claimTime
+
+    //# check list
     // function _cashoutNodeReward(address account, uint256 _creationTime)
+    const _nodeReward11 = await nodeRewardManager.callStatic._cashoutNodeReward(addr1.address, cts1[0])
+    console.log('_nodeReward11', _nodeReward11);
+    // assert(_nodeReward11.eq(ethers.BigNumber.from(rewardPerNode)));
+
+
     // function _cashoutAllNodesReward(address account)
+    const _nodeReward1 = await nodeRewardManager.callStatic._cashoutAllNodesReward(addr1.address)
+    console.log('_nodeReward1', _nodeReward1);
+
     // function claimable(NodeEntity memory node) private view returns (bool) {
     // function _getRewardAmountOf(address account)
     // function _getRewardAmountOf(address account, uint256 _creationTime)
