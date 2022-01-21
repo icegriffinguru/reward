@@ -17,7 +17,7 @@ contract NODERewardManagement {
         string name;
         uint256 creationTime;
         uint256 lastClaimTime;
-        uint256 rewardAvailable;
+        // uint256 rewardAvailable;
     }
 
     IterableMapping.Map private nodeOwners;
@@ -96,7 +96,7 @@ contract NODERewardManagement {
             for (uint256 i = 0; i < nodesCount; i++) {
                 _node = nodes[i];
                 if (claimable(_node)) {
-                    _node.rewardAvailable += rewardNode;
+                    // _node.rewardAvailable += rewardNode;
                     _node.lastClaimTime = newClaimTime;
                     totalRewardStaked += rewardNode;
                     claims++;
@@ -124,11 +124,11 @@ contract NODERewardManagement {
         );
         _nodesOfUser[account].push(
             NodeEntity({
-        name: nodeName,
-        creationTime: block.timestamp,
-        lastClaimTime: block.timestamp,
-        rewardAvailable: 0
-        })
+                name: nodeName,
+                creationTime: block.timestamp,
+                lastClaimTime: block.timestamp
+                // rewardAvailable: 0
+            })
         );
         totalNodesCreated++;
         nodeOwners.set(account, _nodesOfUser[account].length);
@@ -221,7 +221,7 @@ contract NODERewardManagement {
         uint256 rewardNode = calculateRewardOfNode(node);
         // uint256 rewardNode = node.rewardAvailable;
 
-        node.rewardAvailable = 0;
+        // node.rewardAvailable = 0;
         return rewardNode;
     }
 
@@ -240,7 +240,7 @@ contract NODERewardManagement {
             //# change reward value
             rewardsTotal += calculateRewardOfNode(_node);
             // rewardsTotal += _node.rewardAvailable;
-            _node.rewardAvailable = 0;
+            // _node.rewardAvailable = 0;
         }
         return rewardsTotal;
     }
@@ -362,7 +362,11 @@ contract NODERewardManagement {
         NodeEntity[] memory nodes = _nodesOfUser[account];
         uint256 nodesCount = nodes.length;
         NodeEntity memory _node;
-        string memory _rewardsAvailable = uint2str(nodes[0].rewardAvailable);
+
+        //#
+        string memory _rewardsAvailable = uint2str(calculateRewardOfNode(nodes[0]));
+        // string memory _rewardsAvailable = uint2str(nodes[0].rewardAvailable);
+
         string memory separator = "#";
 
         for (uint256 i = 1; i < nodesCount; i++) {
