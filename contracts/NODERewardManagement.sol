@@ -165,10 +165,10 @@ contract NODERewardManagement {
         uint256 _creationTime
     ) private view returns (NodeEntity storage) {
 
-        console.logString('--------_getNodeWithCreatime-------');
-        console.logUint(nodes.length);
-        console.logUint(_creationTime);
-        console.logString('--------_getNodeWithCreatime-------');
+        // console.logString('--------_getNodeWithCreatime-------');
+        // console.logUint(nodes.length);
+        // console.logUint(_creationTime);
+        // console.logString('--------_getNodeWithCreatime-------');
 
         uint256 numberOfNodes = nodes.length;
         require(
@@ -230,10 +230,10 @@ contract NODERewardManagement {
         uint256 rewardNode = calculateRewardOfNode(node);
         // uint256 rewardNode = node.rewardAvailable;
 
-        console.logString('--------_cashoutNodeReward-------');
-        console.logString(node.name);
-        console.logUint(rewardNode);
-        console.logString('--------_cashoutNodeReward-------');
+        // console.logString('--------_cashoutNodeReward-------');
+        // console.logString(node.name);
+        // console.logUint(rewardNode);
+        // console.logString('--------_cashoutNodeReward-------');
 
         // node.rewardAvailable = 0;
         return rewardNode;
