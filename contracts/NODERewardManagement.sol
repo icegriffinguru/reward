@@ -246,7 +246,9 @@ contract NODERewardManagement {
     }
 
     function claimable(NodeEntity memory node) private view returns (bool) {
-        return node.lastClaimTime + claimTime <= block.timestamp;
+        //# check if the account can claim a reward after claimTime since the last claim
+        return node.lastClaimTime + claimTime >= block.timestamp;
+        // return node.lastClaimTime + claimTime <= block.timestamp;
     }
 
     function _getRewardAmountOf(address account)
@@ -344,10 +346,7 @@ contract NODERewardManagement {
                 abi.encodePacked(
                     _creationTimes,
                     separator,
-
-                    //# change reward value
-                    calculateRewardOfNode(_node)
-                    // uint2str(_node.creationTime)
+                    uint2str(_node.creationTime)
                 )
             );
         }
