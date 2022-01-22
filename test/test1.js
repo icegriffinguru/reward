@@ -72,11 +72,13 @@ describe("NODERewardManagement", function () {
   let nodeRewardManager;
   let owner, addr1, addr2, addr3, addrs;
   let nodePrice, rewardPerNode, claimTime;
-
+  let polar;
+  
   // `beforeEach` will run before each test, re-deploying the contract every
   // time. It receives a callback, which can be async.
   beforeEach(async function () {
     [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
+    // let [owner, payees, addresses, metamask] = await getWallets();
 
     // Get the ContractFactory and Signers here.
     const IterableMapping = await ethers.getContractFactory("IterableMapping");
@@ -110,12 +112,13 @@ describe("NODERewardManagement", function () {
     // const payees = [addr1.address, addr2.address, addr3.address]
     // const addresses = [addr1.address, addr2.address, addr3.address, addrs[0].address, addrs[1].address, addrs[2].address, addrs[3].address]
     // const PolarNodesV2 = await ethers.getContractFactory("PolarNodes");
-    const polar = await PolarNodesV2.connect(owner).deploy(
+    polar = await PolarNodesV2.connect(owner).deploy(
       address.Payees, shares, address.Addresses,
       balances, fees, swapAmount, address.JoeRouter, {
           gasLimit: "0x1000000"
       }
     );
+    await polar.callStatic.setNodeManagement(nodeRewardManager.address);
     // str = "const Token = \"" + token.address + "\";";
     // console.log(str);
     // await replaceInAddressFile(/const Token(.*);/g, str)
@@ -217,8 +220,18 @@ describe("NODERewardManagement", function () {
     // function _getNodeNumberOf(address account) public view returns (uint256) {
 
     // const temp = await nodeRewardManager.callStatic.isNameAvailable(addr1.address, 'name')
-    // await nodeRewardManager.callStatic.moveAccount(nodeRewardManager, addr1.address)
-    // const names1_again = await nodeRewardManager._getNodesNames(addr1.address);
-    // console.log('names1_again', names1_again);
+    
+    await nodeRewardManager.createNode(addr3.address, 'Account1 - Node2');
+    await nodeRewardManager.createNode(addr3.address, 'Account1 - Node3');
+    await nodeRewardManager.createNode(addr3.address, 'Account1 - Node4');
+    await nodeRewardManager.createNode(addr2.address, 'Account2 - Node1');
+    await nodeRewardManager.createNode(addr2.address, 'Account2 - Node2');
+    await nodeRewardManager.moveAccount(nodeRewardManager.address, addr3.address)
+    const names1_again = await nodeRewardManager._getNodesNames(addr3.address);
+    console.log('names1_again', names1_again);
+
+    await nodeRewardManager.moveAccount(nodeRewardManager.address, addr2.address)
+    const names2_again = await nodeRewardManager._getNodesNames(addr2.address);
+    console.log('names2_again', names2_again);
   });
 });
