@@ -16,7 +16,8 @@ contract NODERewardManagement {
     using IterableMapping for IterableMapping.Map;
 
     struct NodeEntity {
-        string name;
+        //# we won't need name anymore
+        // string name;
         uint256 creationTime;
         uint256 lastClaimTime;
         // uint256 rewardAvailable;
@@ -119,16 +120,15 @@ contract NODERewardManagement {
         return (iterations, claims, lastIndexProcessed);
     }
 
-    function createNode(address account, string memory nodeName) external onlySentry {
-        require(
-            isNameAvailable(account, nodeName),
-            "CREATE NODE: Name not available"
-        );
-        // function createNode(address account, string memory nodeName) public onlySentry {
-
+    // function createNode(address account, string memory nodeName) external onlySentry {
+        // require(
+        //     isNameAvailable(account, nodeName),
+        //     "CREATE NODE: Name not available"
+        // );
+    function createNode(address account, string memory nodeName) public onlySentry {
         _nodesOfUser[account].push(
             NodeEntity({
-                name: nodeName,
+                // name: nodeName,
                 creationTime: block.timestamp,
                 lastClaimTime: block.timestamp
                 // rewardAvailable: 0
@@ -143,19 +143,19 @@ contract NODERewardManagement {
         // }
     }
 
-    function isNameAvailable(address account, string memory nodeName)
-    private
-    view
-    returns (bool)
-    {
-        NodeEntity[] memory nodes = _nodesOfUser[account];
-        for (uint256 i = 0; i < nodes.length; i++) {
-            if (keccak256(bytes(nodes[i].name)) == keccak256(bytes(nodeName))) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // function isNameAvailable(address account, string memory nodeName)
+    // private
+    // view
+    // returns (bool)
+    // {
+    //     NodeEntity[] memory nodes = _nodesOfUser[account];
+    //     for (uint256 i = 0; i < nodes.length; i++) {
+    //         if (keccak256(bytes(nodes[i].name)) == keccak256(bytes(nodeName))) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     function _burn(uint256 index) internal {
         require(index < nodeOwners.size());
@@ -330,24 +330,26 @@ contract NODERewardManagement {
     view
     returns (string memory)
     {
-        require(isNodeOwner(account), "GET NAMES: NO NODE OWNER");
-        NodeEntity[] memory nodes = _nodesOfUser[account];
-        uint256 nodesCount = nodes.length;
-        NodeEntity memory _node;
-        string memory names = nodes[0].name;
-        string memory separator = "#";
+        // require(isNodeOwner(account), "GET NAMES: NO NODE OWNER");
+        // NodeEntity[] memory nodes = _nodesOfUser[account];
+        // uint256 nodesCount = nodes.length;
+        // NodeEntity memory _node;
+        // string memory names = nodes[0].name;
+        // string memory separator = "#";
 
-        console.logString('--------_getNodesNames-------');
-        console.logUint(nodesCount);
-        console.logString(names);
-        console.logString('--------_getNodesNames-------');
+        // console.logString('--------_getNodesNames-------');
+        // console.logUint(nodesCount);
+        // console.logString(names);
+        // console.logString('--------_getNodesNames-------');
 
 
-        for (uint256 i = 1; i < nodesCount; i++) {
-            _node = nodes[i];
-            names = string(abi.encodePacked(names, separator, _node.name));
-        }
-        return names;
+        // for (uint256 i = 1; i < nodesCount; i++) {
+        //     _node = nodes[i];
+        //     names = string(abi.encodePacked(names, separator, _node.name));
+        // }
+        // return names;
+
+        return "NONE";
     }
 
     function _getNodesCreationTime(address account)
@@ -504,27 +506,28 @@ contract NODERewardManagement {
         return distributeRewards(gasForDistribution, rewardPerNode);
     }
 
-    // function moveAccount(address oldNodeRewardManager, address account) public {
-    //     (bool success, bytes memory result) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesNames(address)", account));
+    function moveAccount(address oldNodeRewardManager, address account) public {
+        (bool success, bytes memory names) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesNames(address)", account));
 
-    //     require(
-    //         success || result.length > 0,
-    //         "GET ACCOUNTS: getting nodes of the account failed. Maybe there is no node for the count."
-    //     );
+        require(
+            success || names.length > 0,
+            "moveAccount: getting names of the account node failed. Maybe there isn't any the account's node."
+        );
 
-    //     // Decode data
-    //     string memory nodeNames = abi.decode(result, (string));
-    //     string[] storage names = nodeNames.split("#");
-    //     // string[] memory names = stringSplitter(nodeNames);
+        uint256 nodesCount = 0;
+        bytes memory b = bytes(names);
+        for (uint i; i < 7; i++) {
+            if (b[i] != bytes('#')[0]) {
+                nodesCount++;
+            }
+        }
+        NodeEntity[] storage nodes = _nodesOfUser[account];
+        nodesCount = nodes.length;
 
-    //     uint256 nodesCount = names.length;
-    //     NodeEntity[] storage nodes = _nodesOfUser[account];
-    //     nodesCount = nodes.length;
-
-    //     for (uint256 i = 0; i < nodesCount; i++) {
-    //         createNode(account, names[i]);
-    //     }
-    // }
+        for (uint256 i = 0; i < nodesCount; i++) {
+            createNode(account, '');
+        }
+    }
 
     // function stringSplitter(string memory text) private pure returns (string[] memory) {
     //     string memory myVal = "my example split";
