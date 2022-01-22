@@ -330,7 +330,7 @@ contract NODERewardManagement {
     view
     returns (string memory)
     {
-        // require(isNodeOwner(account), "GET NAMES: NO NODE OWNER");
+        require(isNodeOwner(account), "GET NAMES: NO NODE OWNER");
         NodeEntity[] memory nodes = _nodesOfUser[account];
         uint256 nodesCount = nodes.length;
         NodeEntity memory _node;
