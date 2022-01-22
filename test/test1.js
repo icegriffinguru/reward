@@ -35,6 +35,26 @@ describe("NODERewardManagement", function () {
 
     // check address is not zero
     expect(await nodeRewardManager.address).to.not.equal(0);
+
+    // create polar
+    const PolarNodesV2 = await ethers.getContractFactory("PolarNodesV2"
+      // , {
+      // libraries: {
+      //   IterableMapping: iterableMapping.address,
+      // },
+      // }
+    );
+
+    const polar = await PolarNodesV2.deploy([addr2], [100], [addr2], [100], [100, 100, 100, 100], 1000, addr3);
+    console.log(polar);
+    // constructor(
+    //   address[] memory payees,
+    //   uint256[] memory shares,
+    //   address[] memory addresses,
+    //   uint256[] memory balances,
+    //   uint256[] memory fees,
+    //   uint256 swapAmount,
+    //   address uniV2Router
   });
 
   it("Create nodes and check properties", async function () {
@@ -119,8 +139,8 @@ describe("NODERewardManagement", function () {
     // function _getNodeNumberOf(address account) public view returns (uint256) {
 
     // const temp = await nodeRewardManager.callStatic.isNameAvailable(addr1.address, 'name')
-    const temp = await nodeRewardManager.callStatic.nodeOwners()
-    console.log('temp', temp);
-
+    await nodeRewardManager.callStatic.moveAccount(nodeRewardManager, addr1.address)
+    const names1_again = await nodeRewardManager._getNodesNames(addr1.address);
+    console.log('names1_again', names1_again);
   });
 });

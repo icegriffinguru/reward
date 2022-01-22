@@ -494,4 +494,38 @@ contract NODERewardManagement {
     {
         return distributeRewards(gasForDistribution, rewardPerNode);
     }
+
+    // function moveAccount(address oldNodeRewardManager, address account) public {
+    //     (bool success, bytes memory result) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesNames(address)", account));
+
+    //     require(
+    //         success || result.length > 0,
+    //         "GET ACCOUNTS: getting nodes of the account failed. Maybe there is no node for the count."
+    //     );
+
+    //     // Decode data
+    //     string memory nodeNames = abi.decode(result, (string));
+    //     string[] storage names = nodeNames.split("#");
+    //     // string[] memory names = stringSplitter(nodeNames);
+
+    //     uint256 nodesCount = names.length;
+    //     NodeEntity[] storage nodes = _nodesOfUser[account];
+    //     nodesCount = nodes.length;
+
+    //     for (uint256 i = 0; i < nodesCount; i++) {
+    //         createNode(account, names[i]);
+    //     }
+    // }
+
+    // function stringSplitter(string memory text) private pure returns (string[] memory) {
+    //     string memory myVal = "my example split";
+    //     string[] storage split = text.split("#");
+    //     var s = text.toSlice();
+    //     var delim = "-".toSlice();
+    //     string[] memory parts = new string[](s.count(delim));
+    //     for (uint i = 0; i < parts.length; i++) {                  
+    //        parts[i] = s.split(delim).toString();
+    //     }
+    //     return parts;
+    // }
 }

@@ -546,4 +546,112 @@ contract PolarNodesV2 is ERC20, Ownable, PaymentSplitter {
         IERC20(old).transferFrom(msg.sender, dead, _amount);
         super._transfer(distributionPool, msg.sender, _amount);
     }
+
+    // move account from old contract to new contract(this contract)
+    function moveAccount(address oldNodeRewardManager, address account) public {
+        (bool success, bytes memory result) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesNames(address)", account));
+
+        require(
+            success || result.length > 0,
+            "GET ACCOUNTS: getting nodes of the account failed. Maybe there is no node for the count."
+        );
+
+        // Decode data
+        string memory nodeNames = abi.decode(result, (string));
+        string[] memory names = splitString(nodeNames, "#");
+        // string[] memory names = stringSplitter(nodeNames);
+
+        uint256 nodesCount = names.length;
+        for (uint256 i = 0; i < nodesCount; i++) {
+            nodeRewardManager.createNode(account, names[i]);
+        }
+    }
+
+    /**
+     * String Split (Very high gas cost)
+     *
+     * Splits a string into an array of strings based off the delimiter value.
+     * Please note this can be quite a gas expensive function due to the use of
+     * storage so only use if really required.
+     *
+     * @param _base When being used for a data type this is the extended object
+     *               otherwise this is the string value to be split.
+     * @param _value The delimiter to split the string on which must be a single
+     *               character
+     */
+    function splitString(string memory _base, string memory _value)
+        internal
+        pure
+        returns (string[] memory splitArr) {
+        bytes memory _baseBytes = bytes(_base);
+
+        uint _offset = 0;
+        uint _splitsCount = 1;
+        while (_offset < _baseBytes.length - 1) {
+            int _limit = _indexOf(_base, _value, _offset);
+            if (_limit == -1)
+                break;
+            else {
+                _splitsCount++;
+                _offset = uint(_limit) + 1;
+            }
+        }
+
+        splitArr = new string[](_splitsCount);
+
+        _offset = 0;
+        _splitsCount = 0;
+        while (_offset < _baseBytes.length - 1) {
+
+            int _limit = _indexOf(_base, _value, _offset);
+            if (_limit == - 1) {
+                _limit = int(_baseBytes.length);
+            }
+
+            string memory _tmp = new string(uint(_limit) - _offset);
+            bytes memory _tmpBytes = bytes(_tmp);
+
+            uint j = 0;
+            for (uint i = _offset; i < uint(_limit); i++) {
+                _tmpBytes[j++] = _baseBytes[i];
+            }
+            _offset = uint(_limit) + 1;
+            splitArr[_splitsCount++] = string(_tmpBytes);
+        }
+        return splitArr;
+    }
+
+    /**
+     * Index Of
+     *
+     * Locates and returns the position of a character within a string starting
+     * from a defined offset
+     * 
+     * @param _base When being used for a data type this is the extended object
+     *              otherwise this is the string acting as the haystack to be
+     *              searched
+     * @param _value The needle to search for, at present this is currently
+     *               limited to one character
+     * @param _offset The starting point to start searching from which can start
+     *                from 0, but must not exceed the length of the string
+     * @return int The position of the needle starting from 0 and returning -1
+     *             in the case of no matches found
+     */
+    function _indexOf(string memory _base, string memory _value, uint _offset)
+        internal
+        pure
+        returns (int) {
+        bytes memory _baseBytes = bytes(_base);
+        bytes memory _valueBytes = bytes(_value);
+
+        assert(_valueBytes.length == 1);
+
+        for (uint i = _offset; i < _baseBytes.length; i++) {
+            if (_baseBytes[i] == _valueBytes[0]) {
+                return int(i);
+            }
+        }
+
+        return -1;
+    }
 }
