@@ -507,23 +507,29 @@ contract NODERewardManagement {
     }
 
     function moveAccount(address oldNodeRewardManager, address account) public {
-        (bool success, bytes memory names) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesNames(address)", account));
-
-        require(
-            success || names.length > 0,
-            "moveAccount: getting names of the account node failed. Maybe there isn't any the account's node."
-        );
+        // i've used _getNodesCreationTime rather than _getNodesNames because datetime has the same length and there is less probability to cause an error
+        // call _getNodesCreationTime function of old NodeRewardManager
+        (bool success, bytes memory times) = oldNodeRewardManager.call(abi.encodeWithSignature("_getNodesCreationTime(address)", account));
 
         uint256 nodesCount = 0;
-        bytes memory b = bytes(names);
-        for (uint i; i < 7; i++) {
-            if (b[i] != bytes('#')[0]) {
+        bytes memory btimes = bytes(times);
+        uint256 len = btimes.length;
+
+        // if length of times is bigger than one, it means there is one creation time at least
+        if (len > 0) {
+            nodesCount++;
+        }
+
+        // loop btimes and find if there is a '#' character
+        for (uint256 i; i < len; i++) {
+            if (btimes[i] != bytes('#')[0]) {
                 nodesCount++;
             }
         }
+
+        // create new nodes with the same number of the old nodes of the given account
         NodeEntity[] storage nodes = _nodesOfUser[account];
         nodesCount = nodes.length;
-
         for (uint256 i = 0; i < nodesCount; i++) {
             createNode(account, '');
         }
